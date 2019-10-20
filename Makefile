@@ -10,13 +10,14 @@ prep-ubuntu-18.04:
 	sudo apt-get install -y --no-install-recommends git ninja-build gperf \
 		ccache cargo rustc curl bison flex pkg-config dfu-util wget \
 		python3-pip python3-setuptools python3-tk python3-wheel python3-testresources \
-		python3-widgetsnbextension libyaml-dev xz-utils file make gcc gcc-multilib
+		python3-widgetsnbextension libyaml-dev xz-utils file make gcc gcc-multilib \
+		openocd minicom linux-tools-common
 	sudo apt-get remove -y cmake device-tree-compiler
 	python3 -m pip install --user cmake
 	python3 -m pip install --user -U west
-	#curl -L -O -C - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.10.3/zephyr-sdk-0.10.3-setup.run | true
-	#chmod +x zephyr-sdk-0.10.3-setup.run
-	#./zephyr-sdk-0.10.3-setup.run -- -d ~/zephyr-sdk-0.10.3
+
+.PHONY: new-zephyr-project
+new-zephyr-project:
 	west init zephyrproject
 	pushd zephyrproject && \
 		west update && \
@@ -46,6 +47,22 @@ install-samples:
 	pushd zephyrproject && \
 		pushd zephyr && \
 			west flash && \
+		popd && \
+	popd
+
+.PHONY: menuconfig
+menuconfig:
+	pushd zephyrproject && \
+		pushd zephyr && \
+			west build -t guiconfig && \
+		popd && \
+	popd
+
+.PHONY: debug-samples
+run-samples:
+	pushd zephyrproject && \
+		pushd zephyr && \
+			west debug && \
 		popd && \
 	popd
 
